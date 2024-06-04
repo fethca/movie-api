@@ -1,0 +1,14 @@
+.env
+
+.npmrc
+yarn-error.log
+node_modules
+
+coverage
+dist
+
+.idea
+.history
+.DS_Store
+
+mongo.pem
