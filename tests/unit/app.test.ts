@@ -1,8 +1,8 @@
 import { MockedLogger, mockAction } from '@fethcat/logger'
+import * as mongo from '@fethcat/shared/mongo'
 import cors from 'cors'
 import express, { json, urlencoded } from 'express'
 import helmet from 'helmet'
-import mongoose from 'mongoose'
 import { App } from '../../src/app.js'
 import { limiter } from '../../src/middlewares/limiter.js'
 import { logger } from '../../src/middlewares/logger.js'
@@ -12,7 +12,7 @@ import { mockExpress, mockServer } from '../mock.js'
 vi.mock('helmet')
 vi.mock('cors')
 vi.mock('express')
-vi.mock('mongoose')
+vi.mock('@fethcat/shared/mongo')
 vi.mock('../../src/router.js')
 
 describe('run', () => {
@@ -20,6 +20,7 @@ describe('run', () => {
     const app = new App()
     app['logger'] = new MockedLogger()
     app['initDb'] = vi.fn()
+    app['initMoviesConfigs'] = vi.fn()
     app['startServer'] = vi.fn()
     app['exit'] = vi.fn()
     return app
@@ -68,7 +69,7 @@ describe('initDb', () => {
   })
 
   it('should log failure and throw', async () => {
-    vi.spyOn(mongoose, 'connect').mockRejectedValue(new Error('500'))
+    vi.spyOn(mongo, 'connect').mockRejectedValue(new Error('500'))
     const app = new App()
     const { failure } = mockAction(app['logger'])
     await expect(app['initDb']('dbUri')).rejects.toThrow(new Error('500'))
