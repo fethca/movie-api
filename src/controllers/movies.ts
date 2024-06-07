@@ -89,7 +89,7 @@ export async function getMovies(req: Request, res: Response) {
       ..._in('senscritique.polls', polls),
       ..._in('senscritique.category', categories),
       ..._in('senscritique.countries', countries),
-      ..._in(genresSource === 'tmdb' ? 'tmdb.genres.label' : 'genresInfos.label', genres),
+      ..._in(genresSource === 'tmdb' ? 'tmdb.genres' : 'senscritique.genresInfos', genres),
       ..._compare('senscritique.dateRelease', formattedDates, dateReleaseOrder),
       ..._compare('senscritique.rating', rating, ratingOrder),
       ..._compare('senscritique.stats.ratingCount', ratingCount, ratingCountOrder),

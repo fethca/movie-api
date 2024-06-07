@@ -12,7 +12,7 @@ export class MovieService extends ConfigService<IMovie[]> {
       const movies = await Movie.find({})
       return movies
     } catch (error) {
-      throw new Error('Failed to load actors config')
+      throw new Error('Failed to load movie config')
     }
   }
 }
