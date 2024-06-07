@@ -272,7 +272,7 @@ export async function getGenres(req: Request, res: Response) {
     const { source } = schemas.getGenres.parse(req.query)
     const query = source === 'senscritique' ? 'senscritique.genresInfos' : 'tmdb.genres'
 
-    const genres = await (await Movie.distinct(query)).filter(Boolean)
+    const genres = (await Movie.distinct(query)).filter(Boolean)
 
     res.json({ genres })
     success()
