@@ -17,6 +17,7 @@ const env = validateEnv({
   DB_NAME: str(),
   DB_URL: str(),
   CRON_INTERVAL: num({ default: 3600 }),
+  CONFIG_INTERVAL: num({ default: 43200000 }), //12h
   RADARR_CONFIG_REFRESH_INTERVAL: num({ default: 900000 }),
   PAGE_SIZE: num({ default: 500 }),
 })
@@ -31,6 +32,9 @@ export const settings = {
   },
   cors: {
     origin: env.CORS_ORIGIN,
+  },
+  config: {
+    interval: env.CONFIG_INTERVAL,
   },
   cron: {
     interval: env.CRON_INTERVAL * 1000,
