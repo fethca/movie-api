@@ -1,13 +1,17 @@
 const defaultInOptions = { toNumber: false }
 
+export function _is(name: string, value?: string | boolean) {
+  return value && { [name]: value }
+}
+
 export function _in(name: string, value = '', options = defaultInOptions) {
   const values = formatIn(value, options)
-  return values.length ? { [name]: { $in: values } } : undefined
+  return values.length && { [name]: { $in: values } }
 }
 
 export function _nin(name: string, value = '', options = defaultInOptions) {
   const values = formatIn(value, options)
-  return values.length ? { [name]: { $nin: values } } : undefined
+  return values.length && { [name]: { $nin: values } }
 }
 
 export function formatIn(value = '', options = defaultInOptions) {
@@ -17,11 +21,11 @@ export function formatIn(value = '', options = defaultInOptions) {
 }
 
 export function _exists(name: string, value?: boolean) {
-  return value !== undefined ? { [name]: { $exists: value } } : undefined
+  return value !== undefined && { [name]: { $exists: value } }
 }
 
 export function _startsWith(name: string, value = '') {
-  return value ? { [name]: { $regex: new RegExp(`^${value}`) } } : undefined
+  return value && { [name]: { $regex: new RegExp(`^${value}`) } }
 }
 
 export function _compare(name: string, value = '', order: 'gte' | 'lte' | 'gte,lte' = 'gte') {
