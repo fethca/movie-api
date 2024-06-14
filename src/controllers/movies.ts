@@ -4,7 +4,7 @@ import { movieSchema } from '@fethcat/shared/types'
 import { Request, Response } from 'express'
 import Fuse from 'fuse.js'
 import { z } from 'zod'
-import { _compare, _exists, _in, formatDates, formatSort } from '../helpers/mongo.js'
+import { _compare, _exists, _in, _is, formatDates, formatSort } from '../helpers/mongo.js'
 import { actorList, directorList, pollList } from '../services.js'
 import { booleanSchema, paginationSchema } from '../types.js'
 
@@ -96,7 +96,7 @@ export async function getMovies(req: Request, res: Response) {
       ..._compare('popularity', popularity, popularityOrder),
       ..._compare('senscritique.duration', duration, durationOrder),
       ..._exists('providers.0', providers),
-      released,
+      ..._is('released', released),
     }
 
     const total = await Movie.countDocuments({ ...filters })
