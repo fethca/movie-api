@@ -4,8 +4,8 @@ import { movieList } from '../services.js'
 type IPoll = { name: string; id: number; maxRating: number; maxRatingCount: number }
 
 export class PollService extends ConfigService<IPoll[]> {
-  constructor(interval: number) {
-    super(interval)
+  constructor(interval: number, options?: { autoRefresh: boolean }) {
+    super(interval, options)
   }
 
   async fetch(): Promise<IPoll[]> {

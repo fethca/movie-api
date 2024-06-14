@@ -4,8 +4,8 @@ import { movieList } from '../services.js'
 type IDirector = { name: string; id: number; maxRating: number; maxRatingCount: number }
 
 export class DirectorService extends ConfigService<IDirector[]> {
-  constructor(interval: number) {
-    super(interval)
+  constructor(interval: number, options?: { autoRefresh: boolean }) {
+    super(interval, options)
   }
 
   async fetch(): Promise<IDirector[]> {

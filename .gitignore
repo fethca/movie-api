@@ -11,4 +11,4 @@ dist
 .history
 .DS_Store
 
-mongo.pem
+*.pem

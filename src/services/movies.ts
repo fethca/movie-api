@@ -3,8 +3,8 @@ import { Movie } from '@fethcat/shared/mongo'
 import { IMovie } from '@fethcat/shared/types'
 
 export class MovieService extends ConfigService<IMovie[]> {
-  constructor(interval: number) {
-    super(interval)
+  constructor(interval: number, options?: { autoRefresh: boolean }) {
+    super(interval, options)
   }
 
   async fetch(): Promise<IMovie[]> {
