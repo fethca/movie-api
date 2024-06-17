@@ -1,6 +1,6 @@
 # movie-api
 
-Movie api used for [oklezzgo] application. 
+Movie api used for [oklezzgo](https://github.com/fethca/oklezzgo) application. 
 
 ## Prerequisites
 
