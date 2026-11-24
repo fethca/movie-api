@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { refreshToken, signup } from './controllers/auth.js'
 import {
   getActors,
   getCategories,
@@ -38,6 +39,9 @@ export function router(): Router {
   router.get('/genres', getGenres)
   router.get('/list', searchMovie)
   router.get('/tmdb', getTMDB)
+
+  router.post('/signup', signup)
+  router.get('/refreshToken', refreshToken)
 
   return router
 }
