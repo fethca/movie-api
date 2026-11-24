@@ -1,8 +1,12 @@
 {
   "include": ["src", "tests", "vitest.config.ts", "./types"],
   "compilerOptions": {
+    "target": "ESNext",
     "outDir": "dist",
     "module": "nodenext",
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

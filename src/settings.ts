@@ -8,18 +8,20 @@ const { name, version } = extractPackageJson()
 
 const env = validateEnv({
   ...redisValidators,
-  PORT: num({ default: 3000 }),
-  LOG_SILENT: bool({ default: false }),
+  CONFIG_INTERVAL: num({ default: 43200000 }), //12h
   CORS_ORIGIN: str(),
-  RADARR_URL: str(),
-  RADARR_KEY: str(),
-  SC_URL: str(),
+  CRON_INTERVAL: num({ default: 3600 }),
   DB_NAME: str(),
   DB_URL: str(),
-  CRON_INTERVAL: num({ default: 3600 }),
-  CONFIG_INTERVAL: num({ default: 43200000 }), //12h
-  RADARR_CONFIG_REFRESH_INTERVAL: num({ default: 900000 }),
+  LOG_SILENT: bool({ default: false }),
   PAGE_SIZE: num({ default: 500 }),
+  PORT: num({ default: 3000 }),
+  RADARR_CONFIG_REFRESH_INTERVAL: num({ default: 900000 }),
+  JWT_ACCESS_SECRET: str(),
+  JWT_REFRESH_SECRET: str(),
+  RADARR_KEY: str(),
+  RADARR_URL: str(),
+  SC_URL: str(),
 })
 
 const instanceId = randomBytes(16).toString('hex')
@@ -27,30 +29,18 @@ const instanceId = randomBytes(16).toString('hex')
 export const settings = {
   instanceId,
   metadata: { app: name, version, port: env.PORT, env: env.APP_STAGE },
-  logs: {
-    silent: env.LOG_SILENT,
-  },
-  cors: {
-    origin: env.CORS_ORIGIN,
-  },
-  config: {
-    interval: env.CONFIG_INTERVAL,
-  },
-  cron: {
-    interval: env.CRON_INTERVAL * 1000,
-  },
+  logs: { silent: env.LOG_SILENT },
+  auth: { accessSecret: env.JWT_ACCESS_SECRET, refreshSecret: env.JWT_REFRESH_SECRET },
+  cors: { origin: env.CORS_ORIGIN },
+  config: { interval: env.CONFIG_INTERVAL },
+  cron: { interval: env.CRON_INTERVAL * 1000 },
   radarr: {
     url: env.RADARR_URL,
     key: env.RADARR_KEY,
     refreshConfig: env.RADARR_CONFIG_REFRESH_INTERVAL,
   },
-  senscritique: {
-    url: env.SC_URL,
-  },
-  mongo: {
-    dbName: env.DB_NAME,
-    url: env.DB_URL,
-  },
+  senscritique: { url: env.SC_URL },
+  mongo: { dbName: env.DB_NAME, url: env.DB_URL },
   redis: {
     host: env.REDIS_HOST,
     port: env.REDIS_PORT,
@@ -58,9 +48,7 @@ export const settings = {
     keyPrefix: `${name}:`,
     cacheDuration: env.REDIS_CACHE_DURATION,
   },
-  pagination: {
-    pageSize: env.PAGE_SIZE,
-  },
+  pagination: { pageSize: env.PAGE_SIZE },
 }
 
 const messages = [
