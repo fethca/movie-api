@@ -42,8 +42,11 @@ export function _compare(name: string, value = '', order: 'gte' | 'lte' | 'gte,l
   return result
 }
 
+// Always end with _id so documents sharing the same sort value keep a stable order across pages
 export function formatSort(sortValue?: string, sortOrder?: 'asc' | 'desc') {
-  return sortValue ? { [sortValue]: sortOrder || 'desc' } : {}
+  const order = sortOrder || 'desc'
+  if (!sortValue || sortValue === '_id') return { _id: order }
+  return { [sortValue]: order, _id: order }
 }
 
 export function formatDates(dateRelease = '', order: 'gte' | 'lte' | 'gte,lte' = 'gte') {
