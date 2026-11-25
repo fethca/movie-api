@@ -34,7 +34,7 @@ const schemas = {
       ratingCountOrder: z.enum(['gte', 'lte', 'gte,lte']).optional(),
       ratingOrder: z.enum(['gte', 'lte', 'gte,lte']).optional(),
       released: booleanSchema,
-      sortOrder: z.enum(['asc', 'desc']).optional(),
+      sortOrder: z.enum(['asc', 'desc']).default('desc'),
       sortValue: z.string().default('tmdb.popularity'),
     })
     .merge(paginationSchema),
