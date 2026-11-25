@@ -42,10 +42,9 @@ export function _compare(name: string, value = '', order: 'gte' | 'lte' | 'gte,l
   return result
 }
 
-export function formatSort(sortValue?: string, sortOrder?: 'asc' | 'desc') {
-  const order = sortOrder || 'desc'
-  if (!sortValue || sortValue === '_id') return { _id: order }
-  return { [sortValue]: order, _id: order }
+export function formatSort(sortValue?: string, sortOrder: 'asc' | 'desc' = 'desc') {
+  if (!sortValue || sortValue === '_id') return { _id: sortOrder }
+  return { [sortValue]: sortOrder, _id: sortOrder }
 }
 
 export function formatDates(dateRelease = '', order: 'gte' | 'lte' | 'gte,lte' = 'gte') {
