@@ -42,7 +42,6 @@ export function _compare(name: string, value = '', order: 'gte' | 'lte' | 'gte,l
   return result
 }
 
-// Always end with _id so documents sharing the same sort value keep a stable order across pages
 export function formatSort(sortValue?: string, sortOrder?: 'asc' | 'desc') {
   const order = sortOrder || 'desc'
   if (!sortValue || sortValue === '_id') return { _id: order }
