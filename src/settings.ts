@@ -63,7 +63,7 @@ export const settings = {
   },
 }
 
-const messages = [
+export const messages = [
   'actors_fetch_config_failure',
   'connect_db',
   'directors_fetch_config_failure',

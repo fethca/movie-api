@@ -35,7 +35,7 @@ export class PollService extends ConfigService<IPoll[]> {
       }
       return list.sort((a, b) => b.maxRatingCount - a.maxRatingCount || b.maxRating - a.maxRating)
     } catch (error) {
-      throw new Error('Failed to load polls config')
+      throw new Error('Failed to load polls config', { cause: error })
     }
   }
 }
