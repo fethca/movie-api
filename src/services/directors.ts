@@ -35,7 +35,7 @@ export class DirectorService extends ConfigService<IDirector[]> {
       }
       return list.sort((a, b) => b.maxRatingCount - a.maxRatingCount || b.maxRating - a.maxRating)
     } catch (error) {
-      throw new Error('Failed to load directors config')
+      throw new Error('Failed to load directors config', { cause: error })
     }
   }
 }

@@ -35,7 +35,7 @@ export class ActorService extends ConfigService<IActor[]> {
       }
       return list.sort((a, b) => b.maxRatingCount - a.maxRatingCount || b.maxRating - a.maxRating)
     } catch (error) {
-      throw new Error('Failed to load actors config')
+      throw new Error('Failed to load actors config', { cause: error })
     }
   }
 }
