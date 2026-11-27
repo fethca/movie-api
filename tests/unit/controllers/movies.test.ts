@@ -1,6 +1,6 @@
 import { Movie } from '@fethcat/shared/mongo'
 import { Request } from 'express'
-import { getMovie, getMovies, updateMovie } from '../../../src/controllers/movies.js'
+import { getMovies, getVersions, updateMovie } from '../../../src/controllers/movies.js'
 import { mockReqRes } from '../../mock.js'
 
 const senscritique = {
@@ -98,25 +98,25 @@ describe('updateMovie', () => {
   })
 })
 
-describe('getMovie', () => {
+describe('getVersions', () => {
   it('should return the other editions sharing its tmdb id as versions', async () => {
     const versions = [{ id: 2 }]
     vi.spyOn(Movie, 'findOne').mockResolvedValue({ id: 1, tmdb: { tmdbId: 42 } })
     vi.spyOn(Movie, 'find').mockResolvedValue(versions)
     const { req, res } = mockReqRes({ params: { id: '1' } } as unknown as Request)
 
-    await getMovie(req, res)
+    await getVersions(req, res)
 
     expect(Movie.find).toHaveBeenCalledWith({ 'tmdb.tmdbId': 42, id: { $ne: 1 } })
-    expect(res.json).toHaveBeenCalledWith({ movie: { id: 1, tmdb: { tmdbId: 42 } }, versions })
+    expect(res.json).toHaveBeenCalledWith({ versions })
   })
 
   it('should return no versions for a movie without tmdb match', async () => {
     vi.spyOn(Movie, 'findOne').mockResolvedValue({ id: 1 })
     const { req, res } = mockReqRes({ params: { id: '1' } } as unknown as Request)
 
-    await getMovie(req, res)
+    await getVersions(req, res)
 
-    expect(res.json).toHaveBeenCalledWith({ movie: { id: 1 }, versions: [] })
+    expect(res.json).toHaveBeenCalledWith({ versions: [] })
   })
 })

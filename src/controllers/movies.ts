@@ -135,9 +135,21 @@ export async function getMovie(req: Request, res: Response) {
   try {
     const { id } = schemas.movieId.parse(req.params)
     const movie = await Movie.findOne({ id })
+    res.json({ movie })
+    success()
+  } catch (error) {
+    res.status(500).send(failure(error).message)
+  }
+}
+
+export async function getVersions(req: Request, res: Response) {
+  const { success, failure } = req.logger.action('get_versions')
+  try {
+    const { id } = schemas.movieId.parse(req.params)
+    const movie = await Movie.findOne({ id })
     const tmdbId = movie?.tmdb?.tmdbId
     const versions = tmdbId ? await Movie.find({ 'tmdb.tmdbId': tmdbId, id: { $ne: id } }) : []
-    res.json({ movie, versions })
+    res.json({ versions })
     success()
   } catch (error) {
     res.status(500).send(failure(error).message)
