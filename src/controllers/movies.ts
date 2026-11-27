@@ -45,7 +45,7 @@ const schemas = {
   searchDirector: z.object({ search: z.string() }),
   searchActor: z.object({ search: z.string() }),
   searchPoll: z.object({ search: z.string() }),
-  updateMovie: z.object({ movie: movieSchema.omit({ updatedAt: true }) }),
+  updateMovie: z.object({ movie: movieSchema.omit({ updatedAt: true, edition: true }) }),
   getGenres: z.object({ source: z.enum(['senscritique', 'tmdb']).default('senscritique') }),
   movieId: z
     .object({ id: z.string() })
@@ -105,6 +105,7 @@ export async function getMovies(req: Request, res: Response) {
       ..._exists('providers.0', providers),
       ..._is('released', released),
       ..._is('opsDatas.unfound', unfound),
+      edition: { $ne: true },
     }
 
     const total = await Movie.countDocuments({ ...filters })
@@ -135,6 +136,20 @@ export async function getMovie(req: Request, res: Response) {
     const { id } = schemas.movieId.parse(req.params)
     const movie = await Movie.findOne({ id })
     res.json({ movie })
+    success()
+  } catch (error) {
+    res.status(500).send(failure(error).message)
+  }
+}
+
+export async function getVersions(req: Request, res: Response) {
+  const { success, failure } = req.logger.action('get_versions')
+  try {
+    const { id } = schemas.movieId.parse(req.params)
+    const movie = await Movie.findOne({ id })
+    const tmdbId = movie?.tmdb?.tmdbId
+    const versions = tmdbId ? await Movie.find({ 'tmdb.tmdbId': tmdbId, id: { $ne: id } }) : []
+    res.json({ versions })
     success()
   } catch (error) {
     res.status(500).send(failure(error).message)

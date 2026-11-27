@@ -9,6 +9,7 @@ import {
   getMovie,
   getMovies,
   getPolls,
+  getVersions,
   searchActors,
   searchDirectors,
   searchMovie,
@@ -26,6 +27,7 @@ export function router(): Router {
   router.get('/movies', getMovies)
   router.put('/movies/:id', updateMovie)
   router.get('/movies/:id', getMovie)
+  router.get('/movies/:id/versions', getVersions)
   router.get('/movies/max/:property', getMax)
   router.get('/directors', getDirectors)
   router.get('/actors', getActors)

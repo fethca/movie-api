@@ -1,6 +1,6 @@
 import { Movie } from '@fethcat/shared/mongo'
 import { Request } from 'express'
-import { getMovies, updateMovie } from '../../../src/controllers/movies.js'
+import { getMovies, getVersions, updateMovie } from '../../../src/controllers/movies.js'
 import { mockReqRes } from '../../mock.js'
 
 const senscritique = {
@@ -58,13 +58,13 @@ describe('getMovies', () => {
   it('should only return unfound movies when unfound is true', async () => {
     const { req, res } = mockReqRes({ query: { unfound: 'true' } } as unknown as Request)
     await getMovies(req, res)
-    expect(Movie.find).toHaveBeenCalledWith({ 'opsDatas.unfound': true })
+    expect(Movie.find).toHaveBeenCalledWith({ 'opsDatas.unfound': true, edition: { $ne: true } })
   })
 
   it('should not filter on unfound when unfound is false', async () => {
     const { req, res } = mockReqRes({ query: { unfound: 'false' } } as unknown as Request)
     await getMovies(req, res)
-    expect(Movie.find).toHaveBeenCalledWith({})
+    expect(Movie.find).toHaveBeenCalledWith({ edition: { $ne: true } })
   })
 })
 
@@ -95,5 +95,28 @@ describe('updateMovie', () => {
       { id: 1 },
       expect.objectContaining({ opsDatas: { lastJobDate: 0, lastUpdateDate: 1000, unfound: true } }),
     )
+  })
+})
+
+describe('getVersions', () => {
+  it('should return the other editions sharing its tmdb id as versions', async () => {
+    const versions = [{ id: 2 }]
+    vi.spyOn(Movie, 'findOne').mockResolvedValue({ id: 1, tmdb: { tmdbId: 42 } })
+    vi.spyOn(Movie, 'find').mockResolvedValue(versions)
+    const { req, res } = mockReqRes({ params: { id: '1' } } as unknown as Request)
+
+    await getVersions(req, res)
+
+    expect(Movie.find).toHaveBeenCalledWith({ 'tmdb.tmdbId': 42, id: { $ne: 1 } })
+    expect(res.json).toHaveBeenCalledWith({ versions })
+  })
+
+  it('should return no versions for a movie without tmdb match', async () => {
+    vi.spyOn(Movie, 'findOne').mockResolvedValue({ id: 1 })
+    const { req, res } = mockReqRes({ params: { id: '1' } } as unknown as Request)
+
+    await getVersions(req, res)
+
+    expect(res.json).toHaveBeenCalledWith({ versions: [] })
   })
 })
