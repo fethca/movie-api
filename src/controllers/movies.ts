@@ -36,6 +36,7 @@ const schemas = {
       released: booleanSchema,
       sortOrder: z.enum(['asc', 'desc']).default('desc'),
       sortValue: z.string().default('tmdb.popularity'),
+      unfound: booleanSchema,
     })
     .merge(paginationSchema),
   getDirectors: z.object({ pageSize: z.coerce.number().default(500) }),
@@ -84,6 +85,7 @@ export async function getMovies(req: Request, res: Response) {
       released,
       sortOrder,
       sortValue,
+      unfound,
     } = schemas.getMovies.parse(req.query)
 
     const formattedDates = formatDates(dateRelease, dateReleaseOrder)
@@ -102,6 +104,7 @@ export async function getMovies(req: Request, res: Response) {
       ..._compare('opsDatas.lastUpdateDate', opsLastUpdate, opsLastUpdateOrder),
       ..._exists('providers.0', providers),
       ..._is('released', released),
+      ..._is('opsDatas.unfound', unfound),
     }
 
     const total = await Movie.countDocuments({ ...filters })
@@ -143,7 +146,8 @@ export async function updateMovie(req: Request, res: Response) {
   try {
     const { id } = schemas.movieId.parse(req.params)
     const { movie } = schemas.updateMovie.parse(req.body)
-    await Movie.findOneAndUpdate({ id }, movie)
+    const opsDatas = { ...movie.opsDatas, lastJobDate: 0, unfound: !movie.tmdb }
+    await Movie.findOneAndUpdate({ id }, { ...movie, opsDatas })
     res.sendStatus(200)
     success()
   } catch (error) {
