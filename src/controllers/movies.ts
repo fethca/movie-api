@@ -4,7 +4,7 @@ import { movieSchema } from '@fethcat/shared/types'
 import { Request, Response } from 'express'
 import Fuse from 'fuse.js'
 import { z } from 'zod'
-import { _compare, _exists, _in, _is, formatDates, formatSort } from '../helpers/mongo.js'
+import { _compare, _exists, _in, _is, formatDates, formatSort, toMinutes } from '../helpers/mongo.js'
 import { actorList, directorList, pollList } from '../services.js'
 import { booleanSchema, paginationSchema } from '../types.js'
 
@@ -20,7 +20,6 @@ const schemas = {
       duration: z.string().optional(),
       durationOrder: z.enum(['gte', 'lte', 'gte,lte']).optional(),
       genres: z.string().optional(),
-      genresSource: z.enum(['senscritique', 'tmdb']).optional(),
       opsLastUpdate: z.string().optional(),
       opsLastUpdateOrder: z.enum(['gte', 'lte']).optional(),
       pageSize: z.string().optional(),
@@ -36,6 +35,7 @@ const schemas = {
       released: booleanSchema,
       sortOrder: z.enum(['asc', 'desc']).default('desc'),
       sortValue: z.string().default('tmdb.popularity'),
+      source: z.enum(['senscritique', 'tmdb']).default('senscritique'),
       unfound: booleanSchema,
     })
     .merge(paginationSchema),
@@ -55,6 +55,21 @@ const schemas = {
   searchMovie: z.object({ search: z.string() }),
 }
 
+const sourceFields = {
+  senscritique: {
+    dateRelease: 'senscritique.dateRelease',
+    duration: 'senscritique.duration',
+    genres: 'senscritique.genresInfos',
+    rating: 'senscritique.rating',
+  },
+  tmdb: {
+    dateRelease: 'tmdb.year',
+    duration: 'tmdb.runtime',
+    genres: 'tmdb.genres',
+    rating: 'tmdb.ratings.tmdb.value',
+  },
+}
+
 export async function getMovies(req: Request, res: Response) {
   const { success, failure } = req.logger.action('get_movies')
   try {
@@ -68,7 +83,6 @@ export async function getMovies(req: Request, res: Response) {
       duration,
       durationOrder,
       genres,
-      genresSource,
       opsLastUpdate,
       opsLastUpdateOrder,
       pageIndex,
@@ -85,22 +99,28 @@ export async function getMovies(req: Request, res: Response) {
       released,
       sortOrder,
       sortValue,
+      source,
       unfound,
     } = schemas.getMovies.parse(req.query)
 
-    const formattedDates = formatDates(dateRelease, dateReleaseOrder)
+    const fields = sourceFields[source]
+    const isTmdb = source === 'tmdb'
     const filters = {
       ..._in('senscritique.directors', directors),
       ..._in('senscritique.actors.actor', actors),
       ..._in('senscritique.polls', polls),
       ..._in('senscritique.category', categories),
       ..._in('senscritique.countries', countries),
-      ..._in(genresSource === 'tmdb' ? 'tmdb.genres' : 'senscritique.genresInfos', genres),
-      ..._compare('senscritique.dateRelease', formattedDates, dateReleaseOrder),
-      ..._compare('senscritique.rating', rating, ratingOrder),
+      ..._in(fields.genres, genres),
+      ..._compare(
+        fields.dateRelease,
+        isTmdb ? dateRelease : formatDates(dateRelease, dateReleaseOrder),
+        dateReleaseOrder,
+      ),
+      ..._compare(fields.rating, rating, ratingOrder),
       ..._compare('senscritique.stats.ratingCount', ratingCount, ratingCountOrder),
       ..._compare('popularity', popularity, popularityOrder),
-      ..._compare('senscritique.duration', duration, durationOrder),
+      ..._compare(fields.duration, isTmdb ? toMinutes(duration) : duration, durationOrder),
       ..._compare('opsDatas.lastUpdateDate', opsLastUpdate, opsLastUpdateOrder),
       ..._exists('providers.0', providers),
       ..._is('released', released),
