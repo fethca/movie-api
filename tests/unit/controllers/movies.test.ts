@@ -66,6 +66,29 @@ describe('getMovies', () => {
     await getMovies(req, res)
     expect(Movie.find).toHaveBeenCalledWith({ edition: { $ne: true } })
   })
+
+  const sourceQuery = { genres: 'Action', rating: '7,10', ratingOrder: 'gte,lte' }
+
+  it('should filter genres and rating on senscritique data by default', async () => {
+    const { req, res } = mockReqRes({ query: sourceQuery } as unknown as Request)
+    await getMovies(req, res)
+    expect(Movie.find).toHaveBeenCalledWith({
+      'senscritique.genresInfos': { $in: ['Action'] },
+      'senscritique.rating': { $gte: 7, $lte: 10 },
+      edition: { $ne: true },
+    })
+  })
+
+  it('should filter genres and rating on tmdb data when tmdb is their source', async () => {
+    const query = { ...sourceQuery, genresSource: 'tmdb', ratingSource: 'tmdb' }
+    const { req, res } = mockReqRes({ query } as unknown as Request)
+    await getMovies(req, res)
+    expect(Movie.find).toHaveBeenCalledWith({
+      'tmdb.genres': { $in: ['Action'] },
+      'tmdb.ratings.tmdb.value': { $gte: 7, $lte: 10 },
+      edition: { $ne: true },
+    })
+  })
 })
 
 describe('updateMovie', () => {
