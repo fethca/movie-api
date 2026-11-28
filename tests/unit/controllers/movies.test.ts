@@ -1,6 +1,6 @@
 import { Movie } from '@fethcat/shared/mongo'
 import { Request } from 'express'
-import { getMovies, getVersions, updateMovie } from '../../../src/controllers/movies.js'
+import { getLanguages, getMovies, getVersions, updateMovie } from '../../../src/controllers/movies.js'
 import { mockReqRes } from '../../mock.js'
 
 const senscritique = {
@@ -79,6 +79,15 @@ describe('getMovies', () => {
     })
   })
 
+  it('should filter on the tmdb original language', async () => {
+    const { req, res } = mockReqRes({ query: { languages: 'English,French' } } as unknown as Request)
+    await getMovies(req, res)
+    expect(Movie.find).toHaveBeenCalledWith({
+      'tmdb.originalLanguage.name': { $in: ['English', 'French'] },
+      edition: { $ne: true },
+    })
+  })
+
   it('should filter genres and rating on tmdb data when tmdb is their source', async () => {
     const query = { ...sourceQuery, genresSource: 'tmdb', ratingSource: 'tmdb' }
     const { req, res } = mockReqRes({ query } as unknown as Request)
@@ -141,5 +150,15 @@ describe('getVersions', () => {
     await getVersions(req, res)
 
     expect(res.json).toHaveBeenCalledWith({ versions: [] })
+  })
+})
+
+describe('getLanguages', () => {
+  it('should return the sorted tmdb original languages', async () => {
+    vi.spyOn(Movie, 'distinct').mockResolvedValue(['French', null, 'English'] as never)
+    const { req, res } = mockReqRes({} as unknown as Request)
+    await getLanguages(req, res)
+    expect(Movie.distinct).toHaveBeenCalledWith('tmdb.originalLanguage.name')
+    expect(res.json).toHaveBeenCalledWith({ languages: ['English', 'French'] })
   })
 })
