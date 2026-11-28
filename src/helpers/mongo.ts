@@ -56,11 +56,3 @@ export function formatDates(dateRelease = '', order: 'gte' | 'lte' | 'gte,lte' =
   })
   return formattedDates.toString()
 }
-
-export function toMinutes(seconds = '') {
-  if (!seconds) return
-  return seconds
-    .split(',')
-    .map((value) => Math.round(Number(value) / 60))
-    .toString()
-}

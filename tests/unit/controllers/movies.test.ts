@@ -67,36 +67,25 @@ describe('getMovies', () => {
     expect(Movie.find).toHaveBeenCalledWith({ edition: { $ne: true } })
   })
 
-  const sourceQuery = {
-    genres: 'Action',
-    rating: '7,10',
-    ratingOrder: 'gte,lte',
-    dateRelease: '1990,2000',
-    dateReleaseOrder: 'gte,lte',
-    duration: '3600,7200',
-    durationOrder: 'gte,lte',
-  }
+  const sourceQuery = { genres: 'Action', rating: '7,10', ratingOrder: 'gte,lte' }
 
-  it('should filter on senscritique data by default', async () => {
+  it('should filter genres and rating on senscritique data by default', async () => {
     const { req, res } = mockReqRes({ query: sourceQuery } as unknown as Request)
     await getMovies(req, res)
     expect(Movie.find).toHaveBeenCalledWith({
       'senscritique.genresInfos': { $in: ['Action'] },
       'senscritique.rating': { $gte: 7, $lte: 10 },
-      'senscritique.dateRelease': { $gte: '1990-01-01', $lte: '2000-12-31' },
-      'senscritique.duration': { $gte: 3600, $lte: 7200 },
       edition: { $ne: true },
     })
   })
 
-  it('should filter on tmdb data when tmdb is the source', async () => {
-    const { req, res } = mockReqRes({ query: { ...sourceQuery, source: 'tmdb' } } as unknown as Request)
+  it('should filter genres and rating on tmdb data when tmdb is their source', async () => {
+    const query = { ...sourceQuery, genresSource: 'tmdb', ratingSource: 'tmdb' }
+    const { req, res } = mockReqRes({ query } as unknown as Request)
     await getMovies(req, res)
     expect(Movie.find).toHaveBeenCalledWith({
       'tmdb.genres': { $in: ['Action'] },
       'tmdb.ratings.tmdb.value': { $gte: 7, $lte: 10 },
-      'tmdb.year': { $gte: 1990, $lte: 2000 },
-      'tmdb.runtime': { $gte: 60, $lte: 120 },
       edition: { $ne: true },
     })
   })
