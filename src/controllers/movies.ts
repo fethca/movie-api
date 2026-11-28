@@ -20,6 +20,7 @@ const schemas = {
       duration: z.string().optional(),
       durationOrder: z.enum(['gte', 'lte', 'gte,lte']).optional(),
       genres: z.string().optional(),
+      languages: z.string().optional(),
       genresSource: z.enum(['senscritique', 'tmdb']).optional(),
       opsLastUpdate: z.string().optional(),
       opsLastUpdateOrder: z.enum(['gte', 'lte']).optional(),
@@ -70,6 +71,7 @@ export async function getMovies(req: Request, res: Response) {
       durationOrder,
       genres,
       genresSource,
+      languages,
       opsLastUpdate,
       opsLastUpdateOrder,
       pageIndex,
@@ -97,6 +99,7 @@ export async function getMovies(req: Request, res: Response) {
       ..._in('senscritique.polls', polls),
       ..._in('senscritique.category', categories),
       ..._in('senscritique.countries', countries),
+      ..._in('tmdb.originalLanguage.name', languages),
       ..._in(genresSource === 'tmdb' ? 'tmdb.genres' : 'senscritique.genresInfos', genres),
       ..._compare('senscritique.dateRelease', formattedDates, dateReleaseOrder),
       ..._compare(ratingSource === 'tmdb' ? 'tmdb.ratings.tmdb.value' : 'senscritique.rating', rating, ratingOrder),
@@ -325,6 +328,17 @@ export async function getCountries(req: Request, res: Response) {
       locale: 'fr',
     })
     res.json({ countries })
+    success()
+  } catch (error) {
+    res.status(500).send(failure(error).message)
+  }
+}
+
+export async function getLanguages(req: Request, res: Response) {
+  const { success, failure } = req.logger.action('get_languages')
+  try {
+    const languages = (await Movie.distinct('tmdb.originalLanguage.name')).filter(Boolean).sort()
+    res.json({ languages })
     success()
   } catch (error) {
     res.status(500).send(failure(error).message)

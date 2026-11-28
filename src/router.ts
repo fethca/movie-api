@@ -5,6 +5,7 @@ import {
   getCountries,
   getDirectors,
   getGenres,
+  getLanguages,
   getMax,
   getMovie,
   getMovies,
@@ -38,6 +39,7 @@ export function router(): Router {
   router.get('/categories', getCategories)
   router.get('/countries', getCountries)
   router.get('/genres', getGenres)
+  router.get('/languages', getLanguages)
   router.get('/list', searchMovie)
   router.get('/tmdb', getTMDB)
 
